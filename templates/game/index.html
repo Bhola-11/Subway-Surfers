@@ -3,75 +3,104 @@
 {% block title %}Metro Rush — 3D Endless Runner{% endblock %}
 
 {% block content %}
-<div class="w-full flex flex-col items-center justify-center">
-    <!-- Game Viewport Box -->
+<div class="w-full max-w-7xl flex flex-col items-center justify-center">
+
+    <!-- View Mode Controls Bar -->
+    <div class="w-full flex items-center justify-between px-2 mb-2 text-xs">
+        <div class="flex items-center space-x-2">
+            <span class="text-slate-400 font-arcade text-[11px] hidden sm:inline">VIEW MODE:</span>
+            <button id="toggle-view-mode" onclick="toggleViewMode()" class="px-3 py-1 rounded-xl bg-slate-900 border border-cyan-500/30 text-cyan-300 hover:bg-slate-800 transition-all flex items-center space-x-1.5 shadow-sm">
+                <span id="view-mode-icon">🖥️</span>
+                <span id="view-mode-text" class="font-arcade">Widescreen Arena</span>
+            </button>
+        </div>
+
+        <div class="flex items-center space-x-2">
+            <button onclick="toggleFullscreen()" class="px-3 py-1 rounded-xl bg-slate-900 border border-pink-500/30 text-pink-300 hover:bg-slate-800 transition-all flex items-center space-x-1.5 shadow-sm font-arcade">
+                <span>⛶</span>
+                <span class="hidden sm:inline">FULLSCREEN</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Game Viewport Box -->
     <div id="game-canvas-container">
         <!-- 3D Canvas -->
         <canvas id="game-canvas"></canvas>
 
         <!-- 1. MAIN MENU SCREEN OVERLAY -->
-        <div id="screen-menu" class="absolute inset-0 z-20 flex flex-col justify-between p-5 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent">
+        <div id="screen-menu" class="absolute inset-0 z-20 flex flex-col justify-between p-4 sm:p-8 bg-gradient-to-t from-slate-950/95 via-slate-950/40 to-slate-950/60 backdrop-blur-[2px]">
             <!-- Header Info -->
             <div class="flex items-center justify-between">
-                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl px-3.5 py-1.5 backdrop-blur-md">
-                    <span class="text-[11px] uppercase font-arcade tracking-wider text-slate-400 block">High Score</span>
-                    <span id="menu-high-score" class="font-arcade text-lg font-black text-cyan-300 hud-glow-text">{{ high_score|default:0 }}</span>
+                <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl px-4 py-2 backdrop-blur-md shadow-lg">
+                    <span class="text-[11px] uppercase font-arcade tracking-wider text-slate-400 block">Personal Best</span>
+                    <span id="menu-high-score" class="font-arcade text-xl sm:text-2xl font-black text-cyan-300 hud-glow-text">{{ high_score|default:0 }}</span>
                 </div>
-                <button onclick="window.gameEngine.ui.openHowToPlay()" class="w-9 h-9 rounded-xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 flex items-center justify-center text-sm text-cyan-300 transition-all">
-                    ❓
-                </button>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.gameEngine.ui.openHowToPlay()" class="h-10 px-3.5 rounded-2xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 flex items-center space-x-1.5 text-xs text-cyan-300 font-arcade backdrop-blur-md shadow-lg transition-all">
+                        <span>❓</span>
+                        <span class="hidden sm:inline">CONTROLS</span>
+                    </button>
+                </div>
             </div>
 
             <!-- Center Call to Action -->
             <div class="flex flex-col items-center text-center space-y-4 my-auto">
                 <div class="relative">
-                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-cyan-500/20 to-pink-500/20 border-2 border-cyan-400/80 flex items-center justify-center text-4xl shadow-lg shadow-cyan-500/30 animate-pulse">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-cyan-500/20 via-pink-500/20 to-amber-500/20 border-2 border-cyan-400/80 flex items-center justify-center text-4xl sm:text-5xl shadow-2xl shadow-cyan-500/40 animate-pulse">
                         ⚡
                     </div>
                 </div>
 
                 <div>
-                    <h2 class="font-arcade text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-pink-500">
+                    <h2 class="font-arcade text-3xl sm:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-200 to-pink-500 drop-shadow-[0_0_25px_rgba(0,242,254,0.4)]">
                         METRO RUSH
                     </h2>
-                    <p class="text-xs text-slate-400 mt-1 font-medium">DODGE TRAINS • COLLECT COINS • SURVIVE</p>
+                    <p class="text-xs sm:text-sm text-slate-300 mt-1 font-medium tracking-wide">3-LANE ENDLESS CYBERPUNK SUBWAY RUNNER</p>
                 </div>
 
-                <button onclick="window.gameEngine.startGame()" class="w-full max-w-xs py-4 rounded-2xl font-arcade font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-pink-500 hover:from-cyan-300 hover:to-pink-400 shadow-xl shadow-cyan-500/30 glow-btn active:scale-95 transition-all text-lg tracking-wider">
+                <button onclick="window.gameEngine.startGame()" class="w-full max-w-sm py-4 sm:py-5 rounded-2xl font-arcade font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-pink-500 hover:from-cyan-300 hover:to-pink-400 shadow-2xl shadow-cyan-500/40 glow-btn active:scale-95 transition-all text-lg sm:text-xl tracking-wider cursor-pointer">
                     TAP TO DASH 🏃💨
                 </button>
-                <span class="text-[11px] text-slate-500 font-arcade">OR PRESS SPACE / SWIPE UP</span>
+                <div class="flex items-center space-x-2 text-[11px] sm:text-xs text-slate-400 font-arcade">
+                    <span>PRESS SPACE</span>
+                    <span>•</span>
+                    <span>ARROW KEYS</span>
+                    <span>•</span>
+                    <span>SWIPE</span>
+                </div>
             </div>
 
             <!-- Bottom Menu Grid -->
-            <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-800/80">
-                <button onclick="window.gameEngine.ui.openShop()" class="flex flex-col items-center p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-cyan-400/60 hover:bg-slate-800/80 transition-all group">
-                    <span class="text-xl group-hover:scale-110 transition-transform">🛍️</span>
-                    <span class="text-[10px] font-arcade text-slate-300 mt-1">SHOP</span>
+            <div class="grid grid-cols-4 gap-2 sm:gap-4 pt-3 border-t border-slate-800/80 max-w-2xl mx-auto w-full">
+                <button onclick="window.gameEngine.ui.openShop()" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-cyan-400 hover:bg-slate-800/90 transition-all group shadow-md">
+                    <span class="text-2xl group-hover:scale-110 transition-transform">🛍️</span>
+                    <span class="text-[11px] font-arcade text-slate-300 mt-1 font-bold">SHOP</span>
                 </button>
-                <button onclick="window.gameEngine.ui.openLeaderboard()" class="flex flex-col items-center p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-amber-400/60 hover:bg-slate-800/80 transition-all group">
-                    <span class="text-xl group-hover:scale-110 transition-transform">🏆</span>
-                    <span class="text-[10px] font-arcade text-slate-300 mt-1">RANKS</span>
+                <button onclick="window.gameEngine.ui.openLeaderboard()" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-400 hover:bg-slate-800/90 transition-all group shadow-md">
+                    <span class="text-2xl group-hover:scale-110 transition-transform">🏆</span>
+                    <span class="text-[11px] font-arcade text-slate-300 mt-1 font-bold">RANKS</span>
                 </button>
-                <button onclick="window.gameEngine.ui.openMissions()" class="flex flex-col items-center p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-pink-400/60 hover:bg-slate-800/80 transition-all group">
-                    <span class="text-xl group-hover:scale-110 transition-transform">🎯</span>
-                    <span class="text-[10px] font-arcade text-slate-300 mt-1">MISSIONS</span>
+                <button onclick="window.gameEngine.ui.openMissions()" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-pink-400 hover:bg-slate-800/90 transition-all group shadow-md">
+                    <span class="text-2xl group-hover:scale-110 transition-transform">🎯</span>
+                    <span class="text-[11px] font-arcade text-slate-300 mt-1 font-bold">MISSIONS</span>
                 </button>
-                <button onclick="window.gameEngine.ui.openAchievements()" class="flex flex-col items-center p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-purple-400/60 hover:bg-slate-800/80 transition-all group">
-                    <span class="text-xl group-hover:scale-110 transition-transform">🎖️</span>
-                    <span class="text-[10px] font-arcade text-slate-300 mt-1">TROPHIES</span>
+                <button onclick="window.gameEngine.ui.openAchievements()" class="flex flex-col items-center p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-purple-400 hover:bg-slate-800/90 transition-all group shadow-md">
+                    <span class="text-2xl group-hover:scale-110 transition-transform">🎖️</span>
+                    <span class="text-[11px] font-arcade text-slate-300 mt-1 font-bold">TROPHIES</span>
                 </button>
             </div>
         </div>
 
         <!-- 2. IN-GAME LIVE HUD SCREEN -->
-        <div id="screen-hud" class="hidden absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-4">
+        <div id="screen-hud" class="hidden absolute inset-0 z-20 pointer-events-none flex flex-col justify-between p-4 sm:p-6">
             <!-- Top HUD Bar -->
             <div class="flex items-start justify-between">
                 <!-- Score & Multiplier -->
-                <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl px-3.5 py-2 backdrop-blur-md shadow-lg pointer-events-auto">
+                <div class="bg-slate-950/80 border border-cyan-500/30 rounded-2xl px-4 py-2.5 backdrop-blur-md shadow-lg pointer-events-auto">
                     <div class="text-[10px] uppercase font-arcade tracking-wider text-slate-400">Score</div>
-                    <div id="hud-score" class="font-arcade text-2xl font-black text-cyan-300 hud-glow-text">0</div>
+                    <div id="hud-score" class="font-arcade text-2xl sm:text-3xl font-black text-cyan-300 hud-glow-text">0</div>
                 </div>
 
                 <!-- Active Power-ups Bar -->
@@ -80,23 +109,23 @@
                 </div>
 
                 <!-- Coins & Pause -->
-                <div class="flex items-center space-x-2 pointer-events-auto">
-                    <div class="bg-slate-950/80 border border-amber-500/30 rounded-2xl px-3 py-2 backdrop-blur-md shadow-lg flex items-center space-x-1.5">
-                        <span class="text-base">🪙</span>
-                        <span id="hud-coins" class="font-arcade text-lg font-bold text-amber-400 hud-gold-text">0</span>
+                <div class="flex items-center space-x-2.5 pointer-events-auto">
+                    <div class="bg-slate-950/80 border border-amber-500/30 rounded-2xl px-3.5 py-2 backdrop-blur-md shadow-lg flex items-center space-x-2">
+                        <span class="text-lg">🪙</span>
+                        <span id="hud-coins" class="font-arcade text-lg sm:text-xl font-bold text-amber-400 hud-gold-text">0</span>
                     </div>
 
-                    <div class="bg-slate-950/80 border border-purple-500/30 rounded-2xl px-2.5 py-2 backdrop-blur-md shadow-lg">
-                        <span id="hud-multiplier" class="font-arcade text-xs font-black text-purple-400">x1.0</span>
+                    <div class="bg-slate-950/80 border border-purple-500/30 rounded-2xl px-3 py-2 backdrop-blur-md shadow-lg">
+                        <span id="hud-multiplier" class="font-arcade text-xs sm:text-sm font-black text-purple-400">x1.0</span>
                     </div>
 
-                    <button onclick="window.gameEngine.togglePause()" class="w-10 h-10 rounded-2xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 flex items-center justify-center text-sm text-cyan-300 backdrop-blur-md shadow-lg transition-all">
+                    <button onclick="window.gameEngine.togglePause()" class="w-11 h-11 rounded-2xl bg-slate-900/90 border border-slate-700 hover:border-cyan-400 flex items-center justify-center text-base text-cyan-300 backdrop-blur-md shadow-lg transition-all cursor-pointer">
                         ⏸️
                     </button>
                 </div>
             </div>
 
-            <!-- Mobile Touch Virtual Controls (Optional On-Screen Pad for touch devices) -->
+            <!-- Mobile Touch Virtual Controls -->
             <div class="grid grid-cols-3 gap-2 pointer-events-auto max-w-[280px] mx-auto opacity-70 hover:opacity-100 transition-opacity sm:hidden">
                 <div></div>
                 <button onclick="window.gameEngine.player.jump()" class="h-12 bg-slate-900/90 border border-cyan-500/40 rounded-2xl text-cyan-300 font-bold active:bg-cyan-500/40">▲ JUMP</button>
@@ -108,18 +137,18 @@
         </div>
 
         <!-- 3. PAUSE SCREEN -->
-        <div id="screen-pause" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-950/85 backdrop-blur-md">
-            <div class="w-full max-w-xs text-center space-y-4">
+        <div id="screen-pause" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center p-6 bg-slate-950/90 backdrop-blur-md">
+            <div class="w-full max-w-sm text-center space-y-5 bg-slate-900/95 border border-cyan-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl">
                 <h2 class="font-arcade text-3xl font-black text-cyan-400 hud-glow-text">GAME PAUSED</h2>
 
-                <div class="space-y-3 pt-4">
-                    <button onclick="window.gameEngine.togglePause()" class="w-full py-3.5 rounded-xl font-arcade font-bold bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all">
+                <div class="space-y-3 pt-2">
+                    <button onclick="window.gameEngine.togglePause()" class="w-full py-4 rounded-2xl font-arcade font-bold bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 active:scale-95 transition-all text-base cursor-pointer">
                         RESUME RUN
                     </button>
-                    <button onclick="window.gameEngine.startGame()" class="w-full py-3 rounded-xl font-arcade font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-all">
+                    <button onclick="window.gameEngine.startGame()" class="w-full py-3 rounded-2xl font-arcade font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 transition-all cursor-pointer">
                         RESTART
                     </button>
-                    <button onclick="window.gameEngine.ui.showMenu()" class="w-full py-3 rounded-xl font-arcade font-bold bg-slate-900 hover:bg-slate-800 text-rose-400 border border-slate-800 transition-all">
+                    <button onclick="window.gameEngine.ui.showMenu()" class="w-full py-3 rounded-2xl font-arcade font-bold bg-slate-900 hover:bg-slate-800 text-rose-400 border border-slate-800 transition-all cursor-pointer">
                         MAIN MENU
                     </button>
                 </div>
@@ -127,46 +156,46 @@
         </div>
 
         <!-- 4. GAME OVER SCREEN -->
-        <div id="screen-game-over" class="hidden absolute inset-0 z-30 flex flex-col justify-between p-5 bg-slate-950/90 backdrop-blur-xl">
+        <div id="screen-game-over" class="hidden absolute inset-0 z-30 flex flex-col justify-between p-5 sm:p-8 bg-slate-950/95 backdrop-blur-xl">
             <div class="text-center pt-2">
-                <span class="text-3xl">💥</span>
-                <h2 class="font-arcade text-2xl sm:text-3xl font-black text-rose-500 tracking-wider">CRASHED!</h2>
-                <div id="go-new-highscore-badge" class="hidden inline-block mt-1 px-3 py-0.5 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-arcade text-[10px] animate-pulse">
+                <span class="text-4xl">💥</span>
+                <h2 class="font-arcade text-3xl sm:text-4xl font-black text-rose-500 tracking-wider">CRASHED!</h2>
+                <div id="go-new-highscore-badge" class="hidden inline-block mt-2 px-4 py-1 rounded-full bg-amber-500/20 border border-amber-400 text-amber-300 font-arcade text-xs animate-pulse shadow-lg">
                     🏆 NEW HIGH SCORE!
                 </div>
             </div>
 
             <!-- Run Stats Board -->
-            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 space-y-3 shadow-inner my-auto">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="bg-slate-900/90 border border-cyan-500/30 rounded-3xl p-5 space-y-3 shadow-inner my-auto max-w-md mx-auto w-full">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
                     <span class="text-xs text-slate-400 uppercase font-arcade">Run Score</span>
-                    <span id="go-score" class="font-arcade text-xl font-black text-cyan-300">0</span>
+                    <span id="go-score" class="font-arcade text-2xl font-black text-cyan-300">0</span>
                 </div>
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span class="text-xs text-slate-400 uppercase font-arcade">Best Score</span>
-                    <span id="go-high-score" class="font-arcade text-sm font-bold text-amber-400">0</span>
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <span class="text-xs text-slate-400 uppercase font-arcade">Personal Best</span>
+                    <span id="go-high-score" class="font-arcade text-base font-bold text-amber-400">0</span>
                 </div>
-                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span class="text-xs text-slate-400 uppercase font-arcade">Distance</span>
-                    <span id="go-distance" class="font-arcade text-sm font-bold text-white">0m</span>
+                <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <span class="text-xs text-slate-400 uppercase font-arcade">Distance Covered</span>
+                    <span id="go-distance" class="font-arcade text-base font-bold text-white">0m</span>
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-slate-400 uppercase font-arcade">Coins Earned</span>
-                    <span class="font-arcade text-sm font-bold text-amber-400 flex items-center">
-                        <span class="mr-1">🪙</span> <span id="go-coins">0</span>
+                    <span class="font-arcade text-base font-bold text-amber-400 flex items-center">
+                        <span class="mr-1.5">🪙</span> <span id="go-coins">0</span>
                     </span>
                 </div>
 
                 <!-- Container for unlocks / completed missions in this run -->
-                <div id="go-unlocks-container" class="space-y-1.5 pt-2"></div>
+                <div id="go-unlocks-container" class="space-y-2 pt-2"></div>
             </div>
 
             <!-- Actions -->
-            <div class="space-y-2 pt-2">
-                <button onclick="window.gameEngine.startGame()" class="w-full py-3.5 rounded-2xl font-arcade font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-pink-500 hover:from-cyan-300 hover:to-pink-400 shadow-xl shadow-cyan-500/30 glow-btn active:scale-95 transition-all text-base">
+            <div class="space-y-2.5 pt-2 max-w-md mx-auto w-full">
+                <button onclick="window.gameEngine.startGame()" class="w-full py-4 rounded-2xl font-arcade font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-sky-300 to-pink-500 hover:from-cyan-300 hover:to-pink-400 shadow-xl shadow-cyan-500/30 glow-btn active:scale-95 transition-all text-lg cursor-pointer">
                     PLAY AGAIN ⚡
                 </button>
-                <button onclick="window.gameEngine.ui.showMenu()" class="w-full py-2.5 rounded-2xl font-arcade font-bold bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs transition-all">
+                <button onclick="window.gameEngine.ui.showMenu()" class="w-full py-3 rounded-2xl font-arcade font-bold bg-slate-900 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs transition-all cursor-pointer">
                     MAIN MENU
                 </button>
             </div>
@@ -180,7 +209,7 @@
                         <span class="text-xl">🛍️</span>
                         <h3 class="font-arcade font-bold text-base text-cyan-400">METRO SHOP</h3>
                     </div>
-                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm">✕</button>
+                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
                 </div>
                 <div id="shop-content" class="p-4 overflow-y-auto max-h-[70vh] space-y-4">
                     <!-- Injected dynamically -->
@@ -196,13 +225,13 @@
                         <span class="text-xl">🏆</span>
                         <h3 class="font-arcade font-bold text-base text-amber-400">LEADERBOARDS</h3>
                     </div>
-                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm">✕</button>
+                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
                 </div>
                 <!-- Timeframe Tabs -->
                 <div class="flex border-b border-slate-800 bg-slate-950/50 p-1">
-                    <button onclick="window.gameEngine.ui.openLeaderboard('ALL_TIME')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-cyan-400 hover:bg-slate-800/60 rounded-lg">ALL-TIME</button>
-                    <button onclick="window.gameEngine.ui.openLeaderboard('WEEKLY')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-slate-400 hover:text-cyan-400 hover:bg-slate-800/60 rounded-lg">WEEKLY</button>
-                    <button onclick="window.gameEngine.ui.openLeaderboard('DAILY')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-slate-400 hover:text-cyan-400 hover:bg-slate-800/60 rounded-lg">DAILY</button>
+                    <button onclick="window.gameEngine.ui.openLeaderboard('ALL_TIME')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-cyan-400 hover:bg-slate-800/60 rounded-lg cursor-pointer">ALL-TIME</button>
+                    <button onclick="window.gameEngine.ui.openLeaderboard('WEEKLY')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-slate-400 hover:text-cyan-400 hover:bg-slate-800/60 rounded-lg cursor-pointer">WEEKLY</button>
+                    <button onclick="window.gameEngine.ui.openLeaderboard('DAILY')" class="flex-1 py-1.5 text-xs font-arcade font-bold text-slate-400 hover:text-cyan-400 hover:bg-slate-800/60 rounded-lg cursor-pointer">DAILY</button>
                 </div>
                 <div id="leaderboard-list" class="p-4 overflow-y-auto max-h-[65vh] space-y-2">
                     <!-- Injected dynamically -->
@@ -218,7 +247,7 @@
                         <span class="text-xl">🎯</span>
                         <h3 class="font-arcade font-bold text-base text-pink-400">MISSIONS &amp; CHALLENGES</h3>
                     </div>
-                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm">✕</button>
+                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
                 </div>
                 <div id="missions-list" class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
                     <!-- Injected dynamically -->
@@ -234,7 +263,7 @@
                         <span class="text-xl">🎖️</span>
                         <h3 class="font-arcade font-bold text-base text-purple-400">TROPHY ROOM</h3>
                     </div>
-                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm">✕</button>
+                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
                 </div>
                 <div id="achievements-list" class="p-4 overflow-y-auto max-h-[70vh] space-y-3">
                     <!-- Injected dynamically -->
@@ -250,7 +279,7 @@
                         <span class="text-xl">🎮</span>
                         <h3 class="font-arcade font-bold text-base text-cyan-400">HOW TO PLAY</h3>
                     </div>
-                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm">✕</button>
+                    <button onclick="window.gameEngine.ui.closeModals()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm cursor-pointer">✕</button>
                 </div>
                 <div class="p-5 space-y-4 text-sm text-slate-300 overflow-y-auto">
                     <div class="space-y-2">
@@ -296,4 +325,53 @@
 <script src="/static/js/game/renderer.js"></script>
 <script src="/static/js/ui/ui_manager.js"></script>
 <script src="/static/js/game/engine.js"></script>
+
+<script>
+    // View mode toggle handler (Widescreen Arena vs Portrait Phone)
+    let isPortrait = false;
+    function toggleViewMode() {
+        isPortrait = !isPortrait;
+        const container = document.getElementById('game-canvas-container');
+        const icon = document.getElementById('view-mode-icon');
+        const text = document.getElementById('view-mode-text');
+
+        if (isPortrait) {
+            container.classList.add('portrait-mode');
+            icon.textContent = '📱';
+            text.textContent = 'Portrait Mode';
+        } else {
+            container.classList.remove('portrait-mode');
+            icon.textContent = '🖥️';
+            text.textContent = 'Widescreen Arena';
+        }
+        if (window.gameEngine && window.gameEngine.renderer) {
+            setTimeout(() => window.gameEngine.renderer.resize(), 320);
+        }
+    }
+
+    // Fullscreen toggle handler
+    function toggleFullscreen() {
+        const container = document.getElementById('game-canvas-container');
+        if (!document.fullscreenElement) {
+            if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+        if (window.gameEngine && window.gameEngine.renderer) {
+            setTimeout(() => window.gameEngine.renderer.resize(), 100);
+        }
+    }
+
+    document.addEventListener('fullscreenchange', () => {
+        if (window.gameEngine && window.gameEngine.renderer) {
+            setTimeout(() => window.gameEngine.renderer.resize(), 100);
+        }
+    });
+</script>
 {% endblock %}

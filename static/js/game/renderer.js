@@ -1,5 +1,6 @@
 /**
  * Metro Rush - 3D Pseudo-Perspective Projection Canvas Renderer
+ * Supports Dynamic Widescreen, Adaptive FOV, Neon Cyber City Scenery & Fullscreen!
  */
 class GameRenderer {
     constructor(canvas) {
@@ -7,9 +8,9 @@ class GameRenderer {
         this.ctx = canvas.getContext('2d');
 
         this.cameraX = 0;
-        this.cameraY = 165; // Camera height above ground
-        this.cameraZ = -140; // Camera distance behind player
-        this.cameraDepth = 320; // Focal length / projection scale
+        this.cameraY = 175; // Camera height above ground
+        this.cameraZ = -150; // Camera distance behind player
+        this.cameraDepth = 340; // Focal length / projection scale
 
         this.shakeAmount = 0;
         this.shakeDecay = 0.9;
@@ -24,10 +25,22 @@ class GameRenderer {
         this.height = rect.height;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
+
+        // Dynamic depth scaling based on aspect ratio
+        const aspect = this.width / Math.max(1, this.height);
+        if (aspect > 1.2) {
+            // Widescreen / Desktop
+            this.cameraDepth = Math.max(340, this.height * 0.55);
+            this.cameraY = 180;
+        } else {
+            // Portrait / Mobile
+            this.cameraDepth = Math.max(300, this.height * 0.45);
+            this.cameraY = 165;
+        }
     }
 
     addShake(amount) {
-        this.shakeAmount = Math.min(25, this.shakeAmount + amount);
+        this.shakeAmount = Math.min(28, this.shakeAmount + amount);
     }
 
     project(worldX, worldY, worldZ) {
@@ -46,7 +59,7 @@ class GameRenderer {
         this.playerZ = player.z;
 
         // Camera follow player horizontally with smooth lag
-        this.cameraX += (player.x * 0.4 - this.cameraX) * Math.min(1, 10 * dt);
+        this.cameraX += (player.x * 0.35 - this.cameraX) * Math.min(1, 10 * dt);
 
         // Apply and decay screen shake
         let shakeOffsetX = 0;
@@ -61,11 +74,11 @@ class GameRenderer {
         ctx.translate(shakeOffsetX, shakeOffsetY);
 
         // 1. Clear background
-        ctx.fillStyle = '#050711';
+        ctx.fillStyle = '#040714';
         ctx.fillRect(0, 0, this.width, this.height);
 
         // 2. Draw Background Metro Skyline / Tunnel Horizon
-        this.drawBackground(ctx);
+        this.drawBackground(ctx, player.z);
 
         // 3. Draw Track, Rails & Sleepers
         this.drawTrackAndRails(ctx, player.z);
@@ -132,35 +145,46 @@ class GameRenderer {
         ctx.restore();
     }
 
-    drawBackground(ctx) {
+    drawBackground(ctx, playerZ) {
         // Horizon sky gradient
         const horizonY = this.height * 0.44;
         const grad = ctx.createLinearGradient(0, 0, 0, horizonY);
         grad.addColorStop(0, '#020617');
-        grad.addColorStop(0.7, '#0f172a');
+        grad.addColorStop(0.6, '#0f172a');
         grad.addColorStop(1, '#1e1b4b');
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, this.width, horizonY);
 
-        // Distant Cyber Buildings
-        ctx.fillStyle = '#090d1f';
-        const numBldgs = 12;
-        const bldgWidth = this.width / numBldgs;
-        for (let i = 0; i < numBldgs; i++) {
-            const h = 40 + ((i * 37) % 70);
-            ctx.fillRect(i * bldgWidth, horizonY - h, bldgWidth + 2, h);
-
-            // Windows
-            ctx.fillStyle = (i % 2 === 0) ? '#00f2fe' : '#ff007f';
-            ctx.fillRect(i * bldgWidth + 6, horizonY - h + 10, 4, 6);
-            ctx.fillStyle = '#090d1f';
+        // Ambient cyber stars/particles in sky
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        for (let i = 0; i < 25; i++) {
+            const sx = ((i * 127 + playerZ * 0.02) % this.width);
+            const sy = (i * 31) % (horizonY - 20);
+            ctx.fillRect(sx, sy, 1.5, 1.5);
         }
 
-        // Glowing Horizon Line
+        // Distant Cyber Buildings across full screen width
+        const numBldgs = Math.max(16, Math.floor(this.width / 40));
+        const bldgWidth = this.width / numBldgs;
+        for (let i = 0; i < numBldgs; i++) {
+            const h = 45 + ((i * 43) % 95);
+            ctx.fillStyle = (i % 3 === 0) ? '#0b112c' : '#080d22';
+            ctx.fillRect(i * bldgWidth, horizonY - h, bldgWidth + 2, h);
+
+            // Windows & Neon Signs
+            const hasLight = (i % 2 === 0);
+            if (hasLight) {
+                ctx.fillStyle = (i % 4 === 0) ? '#00f2fe' : ((i % 4 === 2) ? '#ff007f' : '#facc15');
+                ctx.fillRect(i * bldgWidth + 6, horizonY - h + 12, 5, 8);
+                ctx.fillRect(i * bldgWidth + 14, horizonY - h + 26, 5, 8);
+            }
+        }
+
+        // Glowing Horizon Laser Line
         ctx.strokeStyle = '#00f2fe';
         ctx.lineWidth = 2;
         ctx.shadowColor = '#00f2fe';
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = 15;
         ctx.beginPath();
         ctx.moveTo(0, horizonY);
         ctx.lineTo(this.width, horizonY);
@@ -172,16 +196,17 @@ class GameRenderer {
         const horizonZ = playerZ + 2500;
         const nearZ = playerZ + 10;
 
-        const pFarL = this.project(-250, 0, horizonZ);
-        const pFarR = this.project(250, 0, horizonZ);
-        const pNearL = this.project(-250, 0, nearZ);
-        const pNearR = this.project(250, 0, nearZ);
+        // Expanded ground bounds for widescreen
+        const pFarL = this.project(-650, 0, horizonZ);
+        const pFarR = this.project(650, 0, horizonZ);
+        const pNearL = this.project(-1200, 0, nearZ);
+        const pNearR = this.project(1200, 0, nearZ);
 
         if (!pFarL || !pNearL) return;
 
-        // Ground Subway Bed
+        // Ground Subway Bed & Side Cyber Shoulders
         ctx.save();
-        ctx.fillStyle = '#0b0f19';
+        ctx.fillStyle = '#060913';
         ctx.beginPath();
         ctx.moveTo(pNearL.x, pNearL.y);
         ctx.lineTo(pFarL.x, pFarL.y);
@@ -190,6 +215,23 @@ class GameRenderer {
         ctx.closePath();
         ctx.fill();
 
+        // Inner Track ballast
+        const pFarTrackL = this.project(-250, 0, horizonZ);
+        const pFarTrackR = this.project(250, 0, horizonZ);
+        const pNearTrackL = this.project(-250, 0, nearZ);
+        const pNearTrackR = this.project(250, 0, nearZ);
+
+        if (pFarTrackL && pNearTrackL) {
+            ctx.fillStyle = '#0a0e1c';
+            ctx.beginPath();
+            ctx.moveTo(pNearTrackL.x, pNearTrackL.y);
+            ctx.lineTo(pFarTrackL.x, pFarTrackL.y);
+            ctx.lineTo(pFarTrackR.x, pFarTrackR.y);
+            ctx.lineTo(pNearTrackR.x, pNearTrackR.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
         // 3 Track Rails & Ties
         const laneWidth = 130;
         const rails = [-1.5, -0.5, 0.5, 1.5]; // 4 outer/inner rail steel beams for 3 lanes
@@ -197,9 +239,9 @@ class GameRenderer {
         // Wooden / Steel Ties across lanes
         const sleeperSpacing = 60;
         const startZ = Math.floor(playerZ / sleeperSpacing) * sleeperSpacing;
-        for (let z = startZ; z < playerZ + 1200; z += sleeperSpacing) {
-            const pL = this.project(-220, 0, z);
-            const pR = this.project(220, 0, z);
+        for (let z = startZ; z < playerZ + 1400; z += sleeperSpacing) {
+            const pL = this.project(-230, 0, z);
+            const pR = this.project(230, 0, z);
             if (pL && pR) {
                 ctx.strokeStyle = '#1e293b';
                 ctx.lineWidth = Math.max(1, 4 * pL.scale);
@@ -217,12 +259,28 @@ class GameRenderer {
             const p2 = this.project(worldX, 0, horizonZ);
             if (p1 && p2) {
                 ctx.strokeStyle = (r === -1.5 || r === 1.5) ? '#00f2fe' : '#38bdf8';
-                ctx.lineWidth = Math.max(1, 3 * p1.scale);
+                ctx.lineWidth = Math.max(1.2, 3.2 * p1.scale);
                 ctx.beginPath();
                 ctx.moveTo(p1.x, p1.y);
                 ctx.lineTo(p2.x, p2.y);
                 ctx.stroke();
             }
+        }
+
+        // Side Neon Guardrails on widescreen
+        const pSideL1 = this.project(-420, 0, nearZ);
+        const pSideL2 = this.project(-420, 0, horizonZ);
+        const pSideR1 = this.project(420, 0, nearZ);
+        const pSideR2 = this.project(420, 0, horizonZ);
+        if (pSideL1 && pSideL2 && pSideR1 && pSideR2) {
+            ctx.strokeStyle = 'rgba(255, 0, 127, 0.5)';
+            ctx.lineWidth = Math.max(1, 2 * pSideL1.scale);
+            ctx.beginPath();
+            ctx.moveTo(pSideL1.x, pSideL1.y);
+            ctx.lineTo(pSideL2.x, pSideL2.y);
+            ctx.moveTo(pSideR1.x, pSideR1.y);
+            ctx.lineTo(pSideR2.x, pSideR2.y);
+            ctx.stroke();
         }
 
         ctx.restore();
@@ -236,14 +294,14 @@ class GameRenderer {
         ctx.strokeStyle = color;
         ctx.lineWidth = 4;
         ctx.shadowColor = color;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 18;
 
         // Arch portal
         ctx.beginPath();
-        ctx.moveTo(-240, 0);
-        ctx.lineTo(-240, -170);
-        ctx.quadraticCurveTo(0, -260, 240, -170);
-        ctx.lineTo(240, 0);
+        ctx.moveTo(-280, 0);
+        ctx.lineTo(-280, -180);
+        ctx.quadraticCurveTo(0, -280, 280, -180);
+        ctx.lineTo(280, 0);
         ctx.stroke();
 
         ctx.restore();
@@ -264,15 +322,15 @@ class GameRenderer {
 
     drawSpeedLines(ctx) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.25)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(0, 242, 254, 0.3)';
+        ctx.lineWidth = 2.5;
         const centerX = this.width / 2;
         const centerY = this.height * 0.44;
 
-        for (let i = 0; i < 16; i++) {
-            const angle = (i / 16) * Math.PI * 2;
-            const len = 80 + Math.random() * 120;
-            const startDist = 140 + Math.random() * 50;
+        for (let i = 0; i < 20; i++) {
+            const angle = (i / 20) * Math.PI * 2;
+            const len = 100 + Math.random() * 160;
+            const startDist = 160 + Math.random() * 80;
 
             const x1 = centerX + Math.cos(angle) * startDist;
             const y1 = centerY + Math.sin(angle) * startDist;
