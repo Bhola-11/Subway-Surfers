@@ -1,0 +1,8 @@
+# Locked requirements for Metro Rush production build
+asgiref==3.8.1
+Django==5.0.6
+sqlparse==0.5.0
+tzdata==2024.1
+pytest==8.2.0
+pytest-django==4.8.0
+pytest-cov==5.0.0

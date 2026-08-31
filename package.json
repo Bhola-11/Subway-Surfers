@@ -1,0 +1,16 @@
+{
+  "name": "metro-rush-runner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Metro Rush 3D endless runner game engine and web client",
+  "main": "static/js/game/engine.js",
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint static/js/"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.57.0"
+  }
+}
